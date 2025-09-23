@@ -11,12 +11,11 @@ int main()
 {
 
     int idSocketS;
-    int idSocketC;
     int sockcon;
     struct sockaddr_in ipportserv;
     struct sockaddr_in ipportcli;
     socklen_t tamano = sizeof(struct sockaddr_in);
-    char mensaje[] = "Raul maricon";
+    char mensaje[] = "Hola hola";
 
     memset(&ipportserv, 0, sizeof(ipportserv));
     ipportserv.sin_family = AF_INET;

@@ -5,36 +5,43 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 
-int main(){
+int main(int argc, char *argv[]){
     int idSocketC;
     struct sockaddr_in ipportserv;
-    socklen_t tam;
     char mensaje[1024];
     ssize_t bytesRecibidos;
 
+    if(argc != 3){
+        printf("Argumentos mal introducidos");
+        exit(EXIT_FAILURE);
+    }
+
+    int puerto = atoi(argv[2]);
+
     idSocketC = socket(AF_INET, SOCK_STREAM, 0);
     if (idSocketC < 0) {
-        perror("No se pudo crear el socket");
+        printf("No se pudo crear el socket");
         exit(EXIT_FAILURE);
     }
 
     ipportserv.sin_family = AF_INET;
-    ipportserv.sin_port = htons(8080);
-    if (inet_pton(AF_INET, "127.0.0.1", &ipportserv.sin_addr) <= 0) {
-        perror("Dirección inválida");
+    ipportserv.sin_port = htons(puerto);
+    if (inet_pton(AF_INET, argv[1], &ipportserv.sin_addr) <= 0) {
+        printf("Dirección inválida");
         exit(EXIT_FAILURE);
     }
 
     if(connect(idSocketC, (struct sockaddr *) &ipportserv, sizeof(ipportserv)) < 0){
-        perror("Conexión fallida");
+        printf("Conexión fallida");
         exit(EXIT_FAILURE);
     }
 
     bytesRecibidos = recv(idSocketC, mensaje, sizeof(mensaje), 0);
 
     if (bytesRecibidos < 0) {
-        perror("Error al recibir datos");
+        printf("Error al recibir datos");
     } else if (bytesRecibidos == 0) {
         printf("El servidor cerró la conexión\n");
     } else {
