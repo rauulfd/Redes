@@ -7,8 +7,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int main()
+int main(int argc, char *argv[])
 {
+    if (argc != 2)
+    {
+        printf("Argumentos mal introducidos");
+        exit(EXIT_FAILURE);
+    }
+    int puerto = atoi(argv[1]);
 
     int idSocketS;
     int sockcon;
@@ -20,7 +26,7 @@ int main()
     memset(&ipportserv, 0, sizeof(ipportserv));
     ipportserv.sin_family = AF_INET;
     ipportserv.sin_addr.s_addr = htonl(INADDR_ANY); // aceptar peticiones de cualquier interfaz
-    ipportserv.sin_port = htons(8080);              // puerto en orden de red
+    ipportserv.sin_port = htons(puerto);            // puerto en orden de red
 
     idSocketS = socket(AF_INET, SOCK_STREAM, 0);
 
