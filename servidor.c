@@ -17,18 +17,18 @@ int main(int argc, char *argv[])
     }
     int puerto = atoi(argv[1]); // Convertir el puerto (cadena) a entero
 
-    int idSocketS; // Descriptor del socket del servidor
-    int sockcon;   // Descriptor del socket para la conexión con el cliente
-    struct sockaddr_in ipportserv; // Estructura para la dirección del servidor
-    struct sockaddr_in ipportcli;  // Estructura para la dirección del cliente
+    int idSocketS;                                 // Descriptor del socket del servidor
+    int sockcon;                                   // Descriptor del socket para la conexión con el cliente
+    struct sockaddr_in ipportserv;                 // Estructura para la dirección del servidor
+    struct sockaddr_in ipportcli;                  // Estructura para la dirección del cliente
     socklen_t tamano = sizeof(struct sockaddr_in); // Tamaño de la estructura del cliente
-    char mensaje[] = "Hola hola"; // Mensaje que se enviará al cliente
+    char mensaje[] = "Hola hola";                  // Mensaje que se enviará al cliente
 
     // Inicializar la estructura del servidor con ceros
     memset(&ipportserv, 0, sizeof(ipportserv));
-    ipportserv.sin_family = AF_INET; // Familia de direcciones (IPv4)
+    ipportserv.sin_family = AF_INET;                // Familia de direcciones (IPv4)
     ipportserv.sin_addr.s_addr = htonl(INADDR_ANY); // Aceptar conexiones de cualquier interfaz
-    ipportserv.sin_port = htons(puerto); // Puerto en formato de red
+    ipportserv.sin_port = htons(puerto);            // Puerto en formato de red
 
     // Crear el socket del servidor
     idSocketS = socket(AF_INET, SOCK_STREAM, 0);
@@ -56,8 +56,10 @@ int main(int argc, char *argv[])
     }
 
     // Mostrar información del cliente conectado
-    printf("Se ha conectado un cliente con ip %s al puerto %d\n", 
-           inet_ntoa(ipportcli.sin_addr), ntohs(ipportcli.sin_port));
+    char ip_cliente[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(ipportcli.sin_addr), ip_cliente, INET_ADDRSTRLEN);
+    printf("Se ha conectado un cliente con ip %s al puerto %d\n",
+           ip_cliente, ntohs(ipportcli.sin_port));
 
     // Enviar un mensaje al cliente
     ssize_t bytes = send(sockcon, mensaje, sizeof(mensaje), 0);
