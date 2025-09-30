@@ -79,8 +79,9 @@ int main(int argc, char *argv[]){
             linea[bytesRecibidos] = '\0';
             fprintf(archivo2, "%s", linea);
         }
-    }
 
+        sleep(4);
+    }
 
     fclose(archivo1);
     fclose(archivo2);

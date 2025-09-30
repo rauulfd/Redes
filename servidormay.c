@@ -22,7 +22,6 @@ int main(int argc, char *argv[])
     struct sockaddr_in ipportserv;
     struct sockaddr_in ipportcli;
     socklen_t tamano = sizeof(struct sockaddr_in);
-    char mensaje[] = "Hola hola";
     char mensajeRecibido[1024];
     int bytesRecibidos;
 
@@ -47,40 +46,26 @@ int main(int argc, char *argv[])
 
     listen(idSocketS, 10);
 
-    if ((sockcon = accept(idSocketS, (struct sockaddr *)&ipportcli, &tamano)) < 0)
-    {
-        perror("No se pudo aceptar la conexion");
-        exit(EXIT_FAILURE);
-    }
-    printf("Se ha conectado un cliente con ip %s al puerto %d\n", inet_ntoa(ipportcli.sin_addr), ntohs(ipportcli.sin_port));
-
-    ssize_t bytes = send(sockcon, mensaje, sizeof(mensaje), 0);
-    printf("Se han enviado %zd bytes\n", bytes);
-
     while (1)
     {
-        bytesRecibidos = recv(sockcon, mensajeRecibido, sizeof(mensajeRecibido), 0);
-
-        if (bytesRecibidos < 0)
+        if ((sockcon = accept(idSocketS, (struct sockaddr *)&ipportcli, &tamano)) < 0)
         {
-            printf("Error al recibir datos");
+            perror("No se pudo aceptar la conexion");
+            continue;
         }
-        else if (bytesRecibidos == 0)
-        {
-            printf("El cliente cerró la conexión\n");
-            break;
-        }
-        else
-        {
+        printf("Se ha conectado un cliente con ip %s al puerto %d\n", inet_ntoa(ipportcli.sin_addr), ntohs(ipportcli.sin_port));
+        while(1){
+            bytesRecibidos = recv(sockcon, mensajeRecibido, sizeof(mensajeRecibido), 0);
+            if (bytesRecibidos <= 0) {
+                printf("El cliente cerró la conexión o hubo un error\n");
+                break;
+            }
             mensajeRecibido[bytesRecibidos] = '\0';
-
             for (int i = 0; mensajeRecibido[i] != '\0'; i++)
             {
                 mensajeRecibido[i] = toupper((unsigned char)mensajeRecibido[i]);
             }
-
             ssize_t bytes = send(sockcon, mensajeRecibido, bytesRecibidos, 0);
-
             if (bytes < 0)
             {
                 perror("Error al enviar mensaje");
