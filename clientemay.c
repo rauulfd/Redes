@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <ctype.h>
 
 int main(int argc, char *argv[]){
     int idSocketC;
