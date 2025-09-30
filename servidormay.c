@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <ctype.h>
 
 int main(int argc, char *argv[])
 {
@@ -71,14 +72,14 @@ int main(int argc, char *argv[])
         }
         else
         {
-            for (int i = 0; i < bytesRecibidos; i++)
+            mensajeRecibido[bytesRecibidos] = '\0';
+
+            for (int i = 0; mensajeRecibido[i] != '\0'; i++)
             {
                 mensajeRecibido[i] = toupper((unsigned char)mensajeRecibido[i]);
             }
 
-            mensajeRecibido[bytesRecibidos] = '\0';
-
-            ssize_t bytes = send(sockcon, toupper(mensajeRecibido), bytesRecibidos, 0);
+            ssize_t bytes = send(sockcon, mensajeRecibido, bytesRecibidos, 0);
 
             if (bytes < 0)
             {
