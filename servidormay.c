@@ -7,8 +7,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int main()
+int main(int argc, char *argv[])
 {
+    if (argc != 2)
+    {
+        printf("Argumentos mal introducidos");
+        exit(EXIT_FAILURE);
+    }
+    int puerto = atoi(argv[1]);
 
     int idSocketS;
     int sockcon;
@@ -16,11 +22,13 @@ int main()
     struct sockaddr_in ipportcli;
     socklen_t tamano = sizeof(struct sockaddr_in);
     char mensaje[] = "Hola hola";
+    char mensajeRecibido[1024];
+    int bytesRecibidos;
 
     memset(&ipportserv, 0, sizeof(ipportserv));
     ipportserv.sin_family = AF_INET;
     ipportserv.sin_addr.s_addr = htonl(INADDR_ANY); // aceptar peticiones de cualquier interfaz
-    ipportserv.sin_port = htons(8080);              // puerto en orden de red
+    ipportserv.sin_port = htons(puerto);            // puerto en orden de red
 
     idSocketS = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -47,6 +55,38 @@ int main()
 
     ssize_t bytes = send(sockcon, mensaje, sizeof(mensaje), 0);
     printf("Se han enviado %zd bytes\n", bytes);
+
+    while (1)
+    {
+        bytesRecibidos = recv(sockcon, mensajeRecibido, sizeof(mensajeRecibido), 0);
+
+        if (bytesRecibidos < 0)
+        {
+            printf("Error al recibir datos");
+        }
+        else if (bytesRecibidos == 0)
+        {
+            printf("El cliente cerró la conexión\n");
+            break;
+        }
+        else
+        {
+            for (int i = 0; i < bytesRecibidos; i++)
+            {
+                mensajeRecibido[i] = toupper((unsigned char)mensajeRecibido[i]);
+            }
+
+            mensajeRecibido[bytesRecibidos] = '\0';
+
+            ssize_t bytes = send(sockcon, toupper(mensajeRecibido), bytesRecibidos, 0);
+
+            if (bytes < 0)
+            {
+                perror("Error al enviar mensaje");
+                exit(EXIT_FAILURE);
+            }
+        }
+    }
 
     close(sockcon);
     close(idSocketS);
