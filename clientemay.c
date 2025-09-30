@@ -10,15 +10,35 @@
 int main(int argc, char *argv[]){
     int idSocketC;
     struct sockaddr_in ipportserv;
-    char mensaje[1024];
+    char linea[1024];
     ssize_t bytesRecibidos;
 
-    if(argc != 3){
+    if(argc != 4){
         printf("Argumentos mal introducidos");
         exit(EXIT_FAILURE);
     }
 
-    int puerto = atoi(argv[2]);
+    FILE *archivo1 = fopen(argv[1], "r");
+    if (archivo1 == NULL) {
+        printf("Error al abrir el archivo");
+        exit(EXIT_FAILURE);
+    }
+
+    char nuevoNombre[1024];
+    strcpy(nuevoNombre, argv[1]); // Copiar el nombre original
+    for (int i = 0; nuevoNombre[i] != '\0'; i++) {
+        nuevoNombre[i] = toupper((unsigned char)nuevoNombre[i]); // Convertir a mayúsculas
+    }
+
+    // Abrir el nuevo archivo para escritura
+    FILE *archivo2 = fopen(nuevoNombre, "w");
+    if (archivo2 == NULL) {
+        printf("Error al crear el archivo de salida");
+        fclose(archivo1);
+        exit(EXIT_FAILURE);
+    }
+
+    int puerto = atoi(argv[3]);
 
     idSocketC = socket(AF_INET, SOCK_STREAM, 0);
     if (idSocketC < 0) {
@@ -28,7 +48,7 @@ int main(int argc, char *argv[]){
 
     ipportserv.sin_family = AF_INET;
     ipportserv.sin_port = htons(puerto);
-    if (inet_pton(AF_INET, argv[1], &ipportserv.sin_addr) <= 0) {
+    if (inet_pton(AF_INET, argv[2], &ipportserv.sin_addr) <= 0) {
         printf("Dirección inválida");
         exit(EXIT_FAILURE);
     }
@@ -38,21 +58,32 @@ int main(int argc, char *argv[]){
         exit(EXIT_FAILURE);
     }
 
-    ssize_t bytes = send(idSocketC, linea, sizeof(linea), 0);
-    printf("Se han enviado %zd bytes\n", bytes);
+    while (fgets(linea, sizeof(linea), archivo1) != NULL) {
+        printf("Línea leída: %s", linea);
+        ssize_t bytes = send(idSocketC, linea, strlen(linea), 0);
+        if (bytes < 0) {
+            printf("Error al enviar datos");
+            break;
+        }
+        printf("Se han enviado %zd bytes\n", bytes);
 
-    bytesRecibidos = recv(idSocketC, mensaje, sizeof(mensaje), 0);
-
-    if (bytesRecibidos < 0) {
-        printf("Error al recibir datos");
-    } else if (bytesRecibidos == 0) {
-        printf("El servidor cerró la conexión\n");
-    } else {
-        mensaje[bytesRecibidos] = '\0'; 
-        printf("Mensaje recibido: %s\n", mensaje);
+        bytesRecibidos = recv(idSocketC, linea, sizeof(linea) - 1, 0);
+        if (bytesRecibidos < 0) {
+            printf("Error al recibir datos");
+            break;
+        } else if (bytesRecibidos == 0) {
+            printf("El servidor cerró la conexión\n");
+            break;
+        } else {
+            linea[bytesRecibidos] = '\0';
+            fprintf(archivo2, "%s", linea);
+        }
     }
 
+
+    fclose(archivo1);
+    fclose(archivo2);
     close(idSocketC);
 
-    return 1;
+    return 0;
 }
