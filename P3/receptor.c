@@ -31,30 +31,30 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    memset(&ippropio, 0, sizeof(ippropio));
-    ippropio.sin_family = AF_INET;
-    ippropio.sin_addr.s_addr = INADDR_ANY;
+    memset(&ippropio, 0, sizeof(ippropio)); // asigna memoria
+    ippropio.sin_family = AF_INET;          // para usar IPv4
+    ippropio.sin_addr.s_addr = INADDR_ANY;  // recibir de cualquier IP
     ippropio.sin_port = htons(puerto);
-    if (inet_pton(AF_INET, argv[2], &ippropio.sin_addr) <= 0)
+    if (inet_pton(AF_INET, argv[2], &ippropio.sin_addr) <= 0) // pasa a binario la IP
     {
         printf("Dirección inválida");
         exit(EXIT_FAILURE);
     }
 
-    if (bind(idSocket, (struct sockaddr *)&ippropio, sizeof(ippropio)) < 0)
+    if (bind(idSocket, (struct sockaddr *)&ippropio, sizeof(ippropio)) < 0) // enlaza el socket con IP y puerto
     {
         perror("Error en bind");
         close(idSocket);
         exit(EXIT_FAILURE);
     }
 
-    memset(&ipremoto, 0, sizeof(ipremoto));
+    memset(&ipremoto, 0, sizeof(ipremoto)); // Inicializa la estructura ipremoto
     ipremoto.sin_family = AF_INET;
     ipremoto.sin_addr.s_addr = INADDR_ANY;
-    ipremoto.sin_port = 0;
+    ipremoto.sin_port = 0; // no se rellena el puerto porque no se sabe
 
     socklen_t addr_len = sizeof(ipremoto);
-    bytesRecibidos = recvfrom(idSocket, mensaje, sizeof(mensaje) - 1, 0, (struct sockaddr *)&ipremoto, &addr_len);
+    bytesRecibidos = recvfrom(idSocket, mensaje, sizeof(mensaje) - 1, 0, (struct sockaddr *)&ipremoto, &addr_len); // recibe de cualquier IP y puerto
     if (bytesRecibidos < 0)
     {
         perror("Error en recvfrom");
