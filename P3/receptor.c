@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    int puerto = atoi(argv[2]);
+    int puerto = atoi(argv[1]);
     // Crear el socket. Si devuelve numero negativo se ha producido un error y aborta
     idSocket = socket(AF_INET, SOCK_DGRAM, 0);
     if (idSocket < 0)
@@ -35,11 +35,6 @@ int main(int argc, char *argv[])
     ippropio.sin_family = AF_INET;          // para usar IPv4
     ippropio.sin_addr.s_addr = INADDR_ANY;  // recibir de cualquier IP
     ippropio.sin_port = htons(puerto);
-    if (inet_pton(AF_INET, argv[2], &ippropio.sin_addr) <= 0) // pasa a binario la IP
-    {
-        printf("Dirección inválida");
-        exit(EXIT_FAILURE);
-    }
 
     if (bind(idSocket, (struct sockaddr *)&ippropio, sizeof(ippropio)) < 0) // enlaza el socket con IP y puerto
     {
