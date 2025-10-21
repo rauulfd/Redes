@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     char *server_ip = argv[2];
     int sockfd;
     struct sockaddr_in socket_emisor, socket_receptor;
-    char mensaje[] = "Hola hola"; // Mensaje que se enviará al cliente
+    char mensaje[] = "Hola hola hola"; // Mensaje que se enviará al cliente
 
     // Crear el socket
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
