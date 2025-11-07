@@ -18,8 +18,13 @@ int main(int argc, char *argv[]) {
     ip_entrada.s_addr = 0; // inicializar a 0
 
     // Comprobar si la IP de entrada es válida
-    if (inet_pton(AF_INET, argv[2], &ip_entrada) != 1) {
-        perror("Error en inet_pton");
+    int r = inet_pton(AF_INET, argv[2], &ip_entrada);
+    if (r == 0) {
+        fprintf(stderr, "IP inválida\n");
+        fclose(f); // cerrar el archivo antes de salir
+        return EXIT_FAILURE;
+    } else if (r < 0) {
+        perror("Erro en inet_pton");
         fclose(f); // cerrar el archivo antes de salir
         return EXIT_FAILURE;
     }
